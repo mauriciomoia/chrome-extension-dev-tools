@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategi - DEV Tools - Settings</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <header>
+        <h1>Configurações</h1>
+    </header>
+    <main>
+        <div class="form-group">
+            <label for="clickup_api_key">ClickUp API Key</label>
+            <input type="password" id="clickup_api_key">
+        </div>
+        <div class="form-group">
+            <label for="github_api_key">GitHub API Key</label>
+            <input type="password" id="github_api_key">
+        </div>
+        <div class="form-group">
+            <label for="gemini_api_key">Gemini API Key</label>
+            <input type="password" id="gemini_api_key">
+        </div>
+        <button id="save" class="button-primary">Save</button>
+        <div id="status"></div>
+    </main>
+    <script src="options.js"></script>
+</body>
+</html>
