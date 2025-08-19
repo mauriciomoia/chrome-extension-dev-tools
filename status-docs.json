@@ -9,6 +9,66 @@
       "step": 2,
       "status": "REFINAMENTO DE NEGÓCIO",
       "link": "https://app.clickup.com/3102749/v/dc/2yp0x-38553/2yp0x-25413"
+    },
+    {
+      "step": 3,
+      "status": "REFINAMENTO TÉCNICO",
+      "link": "https://app.clickup.com/3102749/v/dc/2yp0x-38553/2yp0x-25433"
+    },
+    {
+      "step": 4,
+      "status": "BACKLOG",
+      "link": "https://app.clickup.com/3102749/v/dc/2yp0x-38553/2yp0x-25453"
+    },
+    {
+      "step": 5,
+      "status": "PRONTO PARA INICIAR",
+      "link": "https://app.clickup.com/3102749/v/dc/2yp0x-38553/2yp0x-25473"
+    },
+    {
+      "step": 6,
+      "status": "DESENVOLVENDO",
+      "link": "https://app.clickup.com/3102749/v/dc/2yp0x-38553/2yp0x-25493"
+    },
+    {
+      "step": 7,
+      "status": "PRONTO PARA TESTAR",
+      "link": "https://app.clickup.com/3102749/v/dc/2yp0x-38553/2yp0x-25513"
+    },
+    {
+      "step": 8,
+      "status": "TESTANDO",
+      "link": "https://app.clickup.com/3102749/v/dc/2yp0x-38553/2yp0x-25533"
+    },
+    {
+      "step": 9,
+      "status": "APROVADO TESTE",
+      "link": "https://app.clickup.com/3102749/v/dc/2yp0x-38553/2yp0x-25553"
+    },
+    {
+      "step": 10,
+      "status": "PRONTO PARA HOMOLOGAR",
+      "link": "https://app.clickup.com/3102749/v/dc/2yp0x-38553/2yp0x-25573"
+    },
+    {
+      "step": 11,
+      "status": "HOMOLOGANDO",
+      "link": "https://app.clickup.com/3102749/v/dc/2yp0x-38553/2yp0x-25593"
+    },
+    {
+      "step": 12,
+      "status": "APROVADO HOMOLOG",
+      "link": "https://app.clickup.com/3102749/v/dc/2yp0x-38553/2yp0x-25613"
+    },
+    {
+      "step": 13,
+      "status": "PRONTO PARA DEPLOY",
+      "link": "https://app.clickup.com/3102749/v/dc/2yp0x-38553/2yp0x-25633"
+    },
+    {
+      "step": 14,
+      "status": "EM PRODUÇÃO",
+      "link": "https://app.clickup.com/3102749/v/dc/2yp0x-38553/2yp0x-25653"
     }
   ]
 }

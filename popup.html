@@ -13,29 +13,48 @@
             <img src="images/logo_48.png" alt="Logo">
             <h1>Strategi - DEV Tools</h1>
         </div>
-        <a href="options.html" target="_blank">
+        <a href="options.html" target="_blank" title="Configurações">
             <i class="fas fa-cog"></i>
         </a>
     </header>
+
     <main>
-        <div id="task-related-content">
-            <div id="task-info" style="margin-bottom: 16px;">
-                <p><strong>Tarefa:</strong> <span id="task-name">Carregando...</span></p>
-                <p><strong>Status:</strong> <span id="task-status">Carregando...</span></p>
+        <div id="main-content" class="card">
+            <!-- Conteúdo contextual -->
+            <div id="context-content">
+                <div id="task-info" class="card-section">
+                    <p><strong>Tarefa:</strong> <span id="task-name"></span></p>
+                    <p><strong>Status:</strong> <span id="task-status"></span></p>
+                </div>
+                <div id="status-documentation" class="card-section"></div>
             </div>
-            <div id="status-documentation"></div>
-            <div class="button-container">
+
+            <!-- Mensagem Padrão -->
+            <div id="default-message" class="card-section" style="display: none;">
+                <p>Para usar a extensão, abra uma tarefa no ClickUp ou uma página de commit no GitHub.</p>
+                <p>Consulte os processos de desenvolvimento <a href="https://app.clickup.com/3102749/v/dc/2yp0x-38553/2yp0x-25673" target="_blank">aqui</a>.</p>
+            </div>
+
+            <!-- Botões de Ação -->
+            <div class="button-container card-section">
                 <button id="eval-description" class="btn">Avaliar Descrição</button>
-                <button id="eval-commit" class="btn">Avaliar Commit</button>
-                <button id="publish-docs" class="btn">Publicar Documentação</button>
+                <button id="eval-commit" class="btn">Code Review</button>
+                <button id="publish-docs" class="btn">Publicar Docs</button>
             </div>
         </div>
-        <div id="gemini-response" style="margin-top: 16px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; background-color: #f9f9f9; display: none;">
-            <p><strong>Avaliação:</strong></p>
-            <pre id="gemini-output" style="white-space: pre-wrap; word-wrap: break-word;"></pre>
-            <button id="copy-response-btn" class="btn" style="margin-top: 10px; padding: 8px 12px; font-size: 0.9rem;">Copiar Resposta</button>
+
+        <!-- Resposta do Gemini -->
+        <div id="gemini-response" class="card" style="display: none;">
+            <div class="card-section">
+                <p class="gemini-title"><strong>Avaliação</strong></p>
+                <p id="evaluation-title"></p>
+                <pre id="gemini-output"></pre>
+                <button id="copy-response-btn" class="btn btn-secondary">Copiar</button>
+            </div>
         </div>
     </main>
+
+    <script src="lib/showdown.min.js"></script>
     <script src="popup.js"></script>
 </body>
 </html>
