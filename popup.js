@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const statusDoc = statusDocs.find(doc => doc.status.toUpperCase() === currentStatus);
     
             if (statusDoc) {
-                statusDocumentationDiv.innerHTML = `<p><strong>Documentação:</strong> <a href="${statusDoc.link}" target="_blank">${statusDoc.status}</a></p>`;
+                statusDocumentationDiv.innerHTML = `<p></p>`;
 
                 // Extract IDs from the link and fetch doc page content
                 const docLinkMatch = statusDoc.link.match(/clickup\.com\/(\d+)\/v\/dc\/([a-zA-Z0-9-]+)\/([a-zA-Z0-9-]+)/);
@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     const docPageContent = await fetchClickUpDocPage(workspaceId, docId, pageId, apiKey);
                     if (docPageContent) {
-                        const docContentHtml = `<p><strong>Conteúdo da Documentação:</strong></p><div class="doc-content-scrollable">${converter.makeHtml(docPageContent)}</div>`;
+                        const docContentHtml = `<p><strong>O que fazer nessa etapa?</strong></p><div class="doc-content-scrollable">${converter.makeHtml(docPageContent)}</div>`;
                         statusDocumentationDiv.insertAdjacentHTML('beforeend', docContentHtml);
                     }
                 }
@@ -146,17 +146,42 @@ document.addEventListener('DOMContentLoaded', function () {
             evaluationTitle.textContent = title;
             evaluationTitle.style.display = 'block';
         }
-        geminiOutputPre.textContent = 'Analisando...';
+        geminiOutputPre.textContent = 'Analisando...'; // Clear previous content
         geminiResponseDiv.style.display = 'block';
 
         try {
-            // ... (código da API Gemini)
+            const response = await fetch(geminiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-goog-api-key': geminiApiKey
+                },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{
+                            text: prompt
+                        }]
+                    }]
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`Gemini API error! status: ${response.status}, message: ${errorData.error.message}`);
+            }
+
+            const data = await response.json();
+            const geminiResponseText = data.candidates[0].content.parts[0].text;
+            geminiOutputPre.innerHTML = converter.makeHtml(geminiResponseText); // Convert Markdown to HTML
+            copyResponseBtn.onclick = () => {
+                navigator.clipboard.writeText(geminiResponseText);
+            };
+
         } catch (error) {
-            // ... (código de erro)
+            console.error('Erro ao chamar a API Gemini:', error);
+            geminiOutputPre.textContent = `Erro: ${error.message}`;
         }
     }
-
-    // ... (outras funções de API e do ClickUp)
 
     // --- Lógica Principal ---
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
@@ -199,5 +224,35 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // --- Event Listeners ---
-    // ... (código dos event listeners)
+    evalDescriptionBtn.addEventListener('click', async () => {
+        if (!currentTaskDetails || !currentTaskDetails.description) {
+            alert('Nenhuma descrição de tarefa encontrada para avaliar.');
+            return;
+        }
+
+        chrome.storage.sync.get(['gemini_api_key'], async (result) => {
+            if (result.gemini_api_key) {
+                const prompt = `Avalie a seguinte descrição de tarefa do ClickUp para clareza, completude e se ela segue boas práticas de escrita de descrição de tarefas. Sugira melhorias:\n\n${currentTaskDetails.description}`;
+                await callGeminiAPI(prompt, result.gemini_api_key, 'Avaliação da Descrição');
+            } else {
+                alert('Chave de API do Gemini não configurada. Por favor, configure-a nas opções da extensão.');
+            }
+        });
+    });
+
+    publishDocsBtn.addEventListener('click', async () => {
+        if (!currentTaskDetails) {
+            alert('Nenhuma tarefa encontrada para gerar o changelog.');
+            return;
+        }
+
+        chrome.storage.sync.get(['gemini_api_key'], async (result) => {
+            if (result.gemini_api_key) {
+                const prompt = `Gere um changelog conciso para a seguinte tarefa do ClickUp. Inclua o nome da tarefa, status e uma breve sumarização da descrição:\n\nNome da Tarefa: ${currentTaskDetails.name}\nStatus: ${currentTaskDetails.status.status}\nDescrição: ${currentTaskDetails.description || 'N/A'}`;
+                await callGeminiAPI(prompt, result.gemini_api_key, 'Geração de Changelog');
+            } else {
+                alert('Chave de API do Gemini não configurada. Por favor, configure-a nas opções da extensão.');
+            }
+        });
+    });
 });

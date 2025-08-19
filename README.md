@@ -7,6 +7,8 @@ Esta é uma extensão para o Google Chrome desenvolvida para apoiar a equipe de 
 *   **Integração com ClickUp:**
     *   Exibe informações detalhadas da tarefa do ClickUp, como nome e status, quando você está em uma página de tarefa.
     *   Mostra a documentação relevante para o status atual da tarefa, facilitando o acesso a diretrizes e procedimentos.
+    *   **Visualização de Documentação de Status:** Ao carregar uma tarefa do ClickUp, a extensão agora busca e exibe o conteúdo da documentação de status associada, convertendo o conteúdo de Markdown para HTML para uma leitura mais amigável.
+    *   A seção de documentação de status é **rolável verticalmente** para acomodar conteúdos extensos, e o texto **quebra linha horizontalmente** para melhor visualização.
 
 *   **Inteligência Artificial com Gemini:**
     *   **Avaliar Descrição:** Utiliza a API do Gemini para analisar a descrição da tarefa e fornecer sugestões de melhoria.
