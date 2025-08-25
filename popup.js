@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const evalDescriptionBtn = document.getElementById('eval-description');
     const codeReviewBtn = document.getElementById('eval-commit');
     const publishDocsBtn = document.getElementById('publish-docs');
+    const menuButton = document.getElementById('menu-button');
 
     const geminiUrl = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent';
 

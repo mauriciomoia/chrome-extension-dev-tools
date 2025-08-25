@@ -25,6 +25,11 @@ header {
     border-bottom: 1px solid #dddfe2;
 }
 
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
 header img {
     height: 28px;
     width: 28px;
@@ -37,13 +42,16 @@ header h1 {
     margin: 0;
 }
 
-header a {
-    color: #606770; /* Cor do ícone de engrenagem */
-    text-decoration: none;
+.menu-btn {
+    background: none;
+    border: none;
+    color: #606770;
     font-size: 1.25rem;
+    cursor: pointer;
+    padding: 5px;
 }
 
-header a:hover {
+.menu-btn:hover {
     color: #1c1e21;
 }
 
