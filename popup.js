@@ -255,4 +255,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
+
+    menuButton.addEventListener('click', () => {
+        chrome.tabs.create({ url: 'pages/menu.html' });
+    });
 });
