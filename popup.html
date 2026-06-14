@@ -8,53 +8,86 @@
     <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-    <header>
-        <div class="header-left">
-            <img src="images/logo_48.png" alt="Logo">
-            <h1>Strategi - DEV Tools</h1>
-        </div>
-        <button id="menu-button" class="menu-btn" title="Menu">
-            <i class="fas fa-bars"></i>
-        </button>
-    </header>
+    <div id="main-view">
+        <header>
+            <div class="header-left">
+                <img src="images/logo_48.png" alt="Logo">
+                <h1>Strategi - DEV Tools</h1>
+            </div>
+            <button id="menu-button" class="menu-btn" title="Menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </header>
 
-    <main>
-        <div id="main-content" class="card">
-            <!-- Conteúdo contextual -->
-            <div id="context-content">
-                <div id="task-info" class="card-section">
-                    <p><strong>Tarefa:</strong> <span id="task-name"></span></p>
-                    <p><strong>Status:</strong> <span id="task-status"></span></p>
+        <main>
+            <div id="main-content" class="card">
+                <!-- Conteúdo contextual -->
+                <div id="context-content">
+                    <div id="task-info" class="card-section">
+                        <p><strong>Tarefa:</strong> <span id="task-name"></span></p>
+                        <p><strong>Status:</strong> <span id="task-status"></span></p>
+                    </div>
+                    <div id="status-documentation" class="card-section"></div>
                 </div>
-                <div id="status-documentation" class="card-section"></div>
+
+                <!-- Mensagem Padrão -->
+                <div id="default-message" class="card-section" style="display: none;">
+                    <p>Para usar a extensão, abra uma tarefa no ClickUp ou uma página de commit no GitHub.</p>
+                    <p>Consulte os processos de desenvolvimento <a href="https://app.clickup.com/3102749/v/dc/2yp0x-38553/2yp0x-25673" target="_blank">aqui</a>.</p>
+                </div>
             </div>
 
-            <!-- Mensagem Padrão -->
-            <div id="default-message" class="card-section" style="display: none;">
-                <p>Para usar a extensão, abra uma tarefa no ClickUp ou uma página de commit no GitHub.</p>
-                <p>Consulte os processos de desenvolvimento <a href="https://app.clickup.com/3102749/v/dc/2yp0x-38553/2yp0x-25673" target="_blank">aqui</a>.</p>
+            <div class="button-container" style="display: none; flex-wrap: wrap; justify-content: center; gap: 10px;">
+                <button id="eval-description" class="btn btn-primary">✨ Gerar Descrição</button>
+                <button id="generate-changelog" class="btn btn-primary" style="background-color: #f36c21;">🚀 Gerar Changelog</button>
+                <button id="generate-manual" class="btn btn-primary" style="background-color: #f36c21; width: 100%;">📖 Gerar Manual</button>
+                <button id="eval-commit" class="btn btn-primary">🔍 Code Review</button>
             </div>
-        </div>
 
-        <!-- Botões de Ação -->
-        <div class="button-container card">
-            <button id="eval-description" class="btn">Avaliar Descrição</button>
-            <button id="eval-commit" class="btn">Code Review</button>
-            <button id="publish-docs" class="btn">Publicar Docs</button>
-        </div>
+            <div id="gemini-result-container" style="display: none; margin-top: 20px;">
+                <div class="card" style="background-color: #1a2234; border-color: #2a3441;">
+                    <p id="evaluation-title"></p>
+                    <p id="generation-date" style="font-size: 0.85em; color: #888; margin-bottom: 10px;"></p>
+                    
+                    <div id="ai-responsibility-alert" style="display: none; background-color: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 6px; color: #fbbf24; font-size: 0.85rem; text-align: left; margin-bottom: 10px;">
+                        <strong>⚠️ Lembrete Importante:</strong><br>
+                        É de sua inteira responsabilidade avaliar e revisar o conteúdo gerado por IA antes de utilizá-lo ou enviá-lo.
+                    </div>
 
-        <!-- Resposta do Gemini -->
-        <div id="gemini-response" class="card" style="display: none;">
-            <div class="card-section">
-                <p class="gemini-title"><strong></strong></p>
-                <p id="evaluation-title"></p>
-                <pre id="gemini-output"></pre>
-                <button id="copy-response-btn" class="btn btn-secondary">Copiar</button>
+                    <pre id="gemini-output"></pre>
+                    <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; justify-content: center;">
+                        <button id="copy-response-btn" class="btn btn-secondary">📋 Copiar</button>
+                        <button id="copy-md-btn" class="btn btn-secondary">📝 Copiar MD</button>
+                        <button id="generate-pdf-btn" class="btn btn-secondary" style="display: none;">📥 Gerar PDF</button>
+                        <button id="add-to-task-btn" class="btn btn-primary" style="display: none; width: 100%;">➕ Adicionar na Tarefa</button>
+                    </div>
+                </div>
             </div>
-        </div>
-    </main>
+        </main>
+    </div>
+
+    <div id="menu-view" style="display: none;">
+        <header>
+            <button id="menu-back-button" class="menu-btn" title="Voltar">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1>Menu</h1>
+        </header>
+        <main id="menu-content-area">
+            <!-- Menu content will be loaded here -->
+        </main>
+    </div>
+
+    <div id="prompts-main-view" style="display: none;">
+        <!-- Prompts content will be loaded here -->
+    </div>
+
+    <div id="prompts-main-view" style="display: none;">
+        <!-- Prompts content will be loaded here -->
+    </div>
 
     <script src="lib/showdown.min.js"></script>
+    <script src="lib/html2pdf.bundle.min.js"></script>
     <script src="popup.js"></script>
 </body>
 </html>

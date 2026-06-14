@@ -1,28 +1,35 @@
 /* --- Reset e Configurações Globais --- */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
     margin: 0;
-    background-color: #f0f2f5; /* Fundo cinza claro */
+    background-color: #0f172a; /* Slate 900 */
     width: 350px;
-    color: #1c1e21; /* Cor de texto principal */
+    color: #f8fafc; /* Slate 50 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 main {
-    padding: 12px;
+    padding: 16px;
     display: flex;
     flex-direction: column;
-    gap: 12px; /* Espaço entre os cards */
+    gap: 16px;
 }
 
 /* --- Header --- */
 header {
-    background-color: #ffffff; /* Header branco */
-    color: #1c1e21;
+    background: rgba(15, 23, 42, 0.75); /* Semi-transparent Slate 900 */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: #f8fafc;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 8px 12px;
-    border-bottom: 1px solid #dddfe2;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* Very subtle white border */
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .header-left {
@@ -33,167 +40,281 @@ header {
 header img {
     height: 28px;
     width: 28px;
-    margin-right: 8px;
+    margin-right: 12px;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 header h1 {
-    font-size: 1rem; /* 16px */
+    font-size: 1.05rem;
     font-weight: 600;
     margin: 0;
+    letter-spacing: -0.01em;
 }
 
 .menu-btn {
-    background: none;
+    background: transparent;
     border: none;
-    color: #606770;
-    font-size: 1.25rem;
+    color: #94a3b8; /* Slate 400 */
+    font-size: 1.1rem;
     cursor: pointer;
-    padding: 5px;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .menu-btn:hover {
-    color: #1c1e21;
+    color: #f8fafc;
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* --- Cards --- */
 .card {
-    background-color: #ffffff;
-    border-radius: 8px;
-    border: 1px solid #dddfe2;
-    padding: 12px;
+    background-color: #1e293b; /* Slate 800 */
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08); 
+    padding: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
+}
+
+/* Only remove background for the button container card to make it seamless */
+.button-container.card {
+    background: transparent;
+    border: none;
+    padding: 0;
+    box-shadow: none;
+}
+
+.button-container.card:hover {
+    box-shadow: none;
 }
 
 .card-section:not(:last-child) {
-    margin-bottom: 12px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #f0f2f5; /* Separador suave entre seções */
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 #task-info p, #status-documentation p {
-    margin: 4px 0;
+    margin: 6px 0;
     font-size: 0.875rem; /* 14px */
+    line-height: 1.5;
+    color: #cbd5e1; /* Slate 300 */
 }
 
 #task-info strong, #status-documentation strong {
-    color: #606770;
+    color: #f8fafc;
+    font-weight: 600;
 }
 
 /* --- Botões --- */
 .button-container {
     display: flex;
-    gap: 8px;
-    flex-wrap: wrap; /* Para que os botões quebrem a linha se não couberem */
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.menu-button-container {
+    flex-direction: column;
 }
 
 .btn {
-    flex-grow: 1; /* Faz os botões ocuparem o espaço disponível */
-    background-color: #f97316; /* Laranja */
-    color: #fff;
-    padding: 8px 12px; /* Botões menores */
-    border: none;
-    border-radius: 6px;
+    flex: 1 1 auto;
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    color: #ffffff;
+    padding: 10px 14px;
+    border: 1px solid transparent;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 0.875rem; /* 14px */
+    font-size: 0.875rem;
     font-weight: 600;
     text-align: center;
     text-decoration: none;
-    transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(249, 115, 22, 0.2);
 }
 
 .btn:hover {
-    background-color: #ea580c; /* Laranja mais escuro */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
+    filter: brightness(1.1);
+}
+
+.btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 2px rgba(249, 115, 22, 0.2);
 }
 
 .btn.btn-secondary {
-    background-color: #e4e6eb; /* Cinza claro */
-    color: #1c1e21;
-    font-weight: 500;
+    background: #334155; /* Slate 700 */
+    color: #f8fafc;
+    border: 1px solid #475569; /* Slate 600 */
+    box-shadow: none;
 }
 
 .btn.btn-secondary:hover {
-    background-color: #d8dadf;
+    background: #475569;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    filter: none;
+}
+
+.btn.btn-secondary:active {
+    transform: translateY(1px);
 }
 
 /* --- Área de Resposta Gemini --- */
 .gemini-title {
     font-weight: 600;
     margin-top: 0;
-    margin-bottom: 8px;
-    font-size: 0.9rem;
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+    color: #f8fafc;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Add AI spark icon to the title via pseudo-element if title text is filled */
+#evaluation-title:not(:empty)::before {
+    content: '✨';
 }
 
 #gemini-output {
-    background-color: #f0f2f5; /* Fundo do <pre> */
-    border-radius: 6px;
-    padding: 10px;
-    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-    font-size: 0.8rem; /* Tamanho da fonte do código */
+    background-color: #0f172a; /* Slate 900 */
+    border-radius: 8px;
+    padding: 12px;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: #e2e8f0; /* Slate 200 */
     white-space: pre-wrap;
     word-wrap: break-word;
-    max-height: 200px; /* Altura máxima com scroll */
+    max-height: 250px;
     overflow-y: auto;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
+    border: 1px solid #0f172a;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
 }
 
 .doc-content-scrollable {
-    max-height: 200px; /* Adjust as needed */
+    max-height: 220px;
     overflow-y: auto;
-    border: 1px solid #dddfe2; /* Optional: add a border to make it clear it's a scrollable area */
-    padding: 10px;
-    border-radius: 6px;
-    background-color: #f0f2f5;
-    margin-top: 8px; /* Space from the link above */
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 12px;
+    border-radius: 8px;
+    background-color: #0f172a; /* Slate 900 */
+    margin-top: 10px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .doc-content-scrollable pre {
-    white-space: pre-wrap; /* Allows text to wrap */
-    word-wrap: break-word; /* Ensures long words break */
-    overflow-x: hidden; /* Hides horizontal scrollbar */
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-x: hidden;
 }
 
-/* --- Estilos para a página de opções --- */
+/* --- Estilos para formulários e inputs --- */
 .form-group {
     margin-bottom: 16px;
 }
 
 label {
     display: block;
-    color: #4a5568;
+    color: #94a3b8; /* Slate 400 */
     font-size: 0.875rem;
-    font-weight: bold;
+    font-weight: 500;
     margin-bottom: 8px;
 }
 
-input[type="password"] {
-    border: 1px solid #dddfe2;
-    border-radius: 6px;
+input[type="password"],
+input[type="text"],
+textarea.prompt-textarea {
+    background-color: #0f172a;
+    border: 1px solid #334155;
+    color: #f8fafc;
+    border-radius: 8px;
     width: 100%;
-    padding: 8px 12px;
-    box-sizing: border-box; /* Garante que o padding não afete a largura */
+    padding: 10px 12px;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
 }
 
-input[type="password"]:focus {
+input[type="password"]:focus,
+input[type="text"]:focus,
+textarea.prompt-textarea:focus {
     border-color: #f97316;
     outline: none;
-    box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
 }
 
 .button-primary {
-    background-color: #f97316;
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
     color: #fff;
-    font-weight: bold;
-    padding: 10px 16px;
+    font-weight: 600;
+    padding: 12px 16px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
+    width: 100%;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(249, 115, 22, 0.2);
 }
 
 .button-primary:hover {
-    background-color: #ea580c;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
+    filter: brightness(1.1);
+}
+
+.button-primary:active {
+    transform: translateY(1px);
 }
 
 #status {
     margin-top: 16px;
     font-size: 0.875rem;
+    color: #10b981; /* Emerald 500 for success */
+    text-align: center;
+}
+
+.prompt-textarea {
+    min-height: 200px;
+    resize: vertical;
+}
+
+a {
+    color: #38bdf8; /* Sky 400 */
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: #7dd3fc; /* Sky 300 */
+    text-decoration: underline;
 }
