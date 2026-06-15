@@ -547,11 +547,33 @@ ${currentTaskDetails.description || 'N/A'}`;
         });
     });
 
-    generatePdfBtn.addEventListener('click', () => {
+    async function getLogoDataUrl() {
+        try {
+            const url = chrome.runtime.getURL('images/logo_128.png');
+            const response = await fetch(url);
+            const blob = await response.blob();
+            return await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        } catch (e) {
+            console.error('Erro ao carregar logo:', e);
+            return null;
+        }
+    }
+
+    generatePdfBtn.addEventListener('click', async () => {
         if (!currentGeminiRawText) return;
 
         // A4 content width: 210mm - 15mm*2 margins = 180mm ≈ 680px at 96dpi
         const PDF_WIDTH = 680;
+
+        const logoDataUrl = await getLogoDataUrl();
+        const logoHtml = logoDataUrl
+            ? `<img src="${logoDataUrl}" style="height:36px;width:36px;border-radius:6px;object-fit:contain;" />`
+            : '';
 
         const container = document.createElement('div');
         container.style.cssText = [
@@ -579,6 +601,10 @@ ${currentTaskDetails.description || 'N/A'}`;
                 strong, b { font-weight: bold; }
                 em, i { font-style: italic; }
             </style>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-bottom:14px;border-bottom:3px solid #f97316;">
+                ${logoHtml}
+                <span style="font-size:15px;font-weight:700;color:#0f172a;letter-spacing:0.02em;">Strategi</span>
+            </div>
             <div>${converter.makeHtml(currentGeminiRawText)}</div>
         `;
 
