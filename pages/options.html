@@ -6,6 +6,35 @@
     <title>Strategi - DEV Tools - Settings</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="../popup.css">
+    <style>
+        select {
+            width: 100%;
+            padding: 8px 10px;
+            background-color: #1a2234;
+            color: #f8fafc;
+            border: 1px solid #2a3441;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+        }
+        select:focus {
+            outline: none;
+            border-color: #38bdf8;
+        }
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #64748b;
+            margin: 18px 0 8px 0;
+        }
+        .divider {
+            border: none;
+            border-top: 1px solid #2a3441;
+            margin: 4px 0 12px 0;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -15,6 +44,8 @@
         <h1>Configurações</h1>
     </header>
     <main>
+        <p class="section-title">Integrações</p>
+        <hr class="divider">
         <div class="form-group">
             <label for="clickup_api_key">ClickUp API Key</label>
             <input type="password" id="clickup_api_key">
@@ -23,11 +54,30 @@
             <label for="github_api_key">GitHub API Key</label>
             <input type="password" id="github_api_key">
         </div>
+
+        <p class="section-title">Inteligência Artificial</p>
+        <hr class="divider">
         <div class="form-group">
+            <label for="ai_provider">Provedor</label>
+            <select id="ai_provider">
+                <option value="gemini">Google Gemini</option>
+                <option value="anthropic">Anthropic (Claude)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="ai_model">Modelo</label>
+            <select id="ai_model"></select>
+        </div>
+        <div class="form-group" id="gemini_key_group">
             <label for="gemini_api_key">Gemini API Key</label>
             <input type="password" id="gemini_api_key">
         </div>
-        <button id="save" class="button-primary">Save</button>
+        <div class="form-group" id="anthropic_key_group" style="display: none;">
+            <label for="anthropic_api_key">Anthropic API Key</label>
+            <input type="password" id="anthropic_api_key">
+        </div>
+
+        <button id="save" class="button-primary">Salvar</button>
         <div id="status"></div>
     </main>
     <script src="options.js"></script>

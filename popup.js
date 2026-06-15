@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const menuContentArea = document.getElementById('menu-content-area');
     const menuBackButton = document.getElementById('menu-back-button');
 
-    const geminiUrl = 'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent';
+    const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1/models';
 
     let currentTaskDetails = null;
     let currentContextIdForStorage = null;
@@ -41,16 +41,18 @@ document.addEventListener('DOMContentLoaded', function () {
     function stripMarkdown(text) {
         if (!text) return '';
         return text
-            .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
-            .replace(/\*(.*?)\*/g, '$1') // Remove italic
-            .replace(/__(.*?)__/g, '$1') // Remove bold
-            .replace(/_(.*?)_/g, '$1') // Remove italic
-            .replace(/^#{1,6}\s+(.*)$/gm, '$1') // Remove headers
-            .replace(/```[^\n]*\n/g, '') // Remove opening code block tag
-            .replace(/```/g, '') // Remove closing code block tag
-            .replace(/`([^`]+)`/g, '$1') // Remove inline code
-            .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1') // Remove links
-            .replace(/^>\s+(.*)$/gm, '$1'); // Remove blockquotes
+            .replace(/\*\*(.*?)\*\*/g, '$1')
+            .replace(/__(.*?)__/g, '$1')
+            .replace(/\*(.*?)\*/g, '$1')
+            .replace(/_(.*?)_/g, '$1')
+            .replace(/^#{1,6}\s+(.*)$/gm, '\n$1')
+            .replace(/```[^\n]*\n/g, '')
+            .replace(/```/g, '')
+            .replace(/`([^`]+)`/g, '$1')
+            .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1')
+            .replace(/^>\s+(.*)$/gm, '$1')
+            .replace(/\n{3,}/g, '\n\n')
+            .trim();
     }
 
     // --- Funções de Detecção e Parse de URL ---
@@ -194,14 +196,14 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    async function callGeminiAPI(prompt, geminiApiKey, title) {
+    async function callAIAPI(prompt, { provider, model, apiKey }, title) {
         if (evaluationTitle) {
             evaluationTitle.textContent = title;
             evaluationTitle.style.display = 'block';
         }
-        
+
         if (aiAlertDiv) aiAlertDiv.style.display = 'block';
-        
+
         geminiOutputPre.innerHTML = `
             <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 0;">
                 <svg width="40" height="40" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" stroke="#38bdf8">
@@ -210,37 +212,58 @@ document.addEventListener('DOMContentLoaded', function () {
                     </circle>
                 </svg>
                 <div style="font-size: 1.1rem; font-weight: bold; color: #38bdf8; margin-top: 15px;">✨ Analisando a tarefa...</div>
-            </div>`; // Clear previous content
-            
+            </div>`;
+
         geminiResponseDiv.style.display = 'block';
 
         try {
-            const response = await fetch(geminiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-goog-api-key': geminiApiKey
-                },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [{
-                            text: prompt
-                        }]
-                    }]
-                })
-            });
+            let responseText;
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(`Gemini API error! status: ${response.status}, message: ${errorData.error.message}`);
+            if (provider === 'anthropic') {
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': apiKey,
+                        'anthropic-version': '2023-06-01',
+                        'anthropic-dangerous-direct-browser-access': 'true'
+                    },
+                    body: JSON.stringify({
+                        model: model,
+                        max_tokens: 8096,
+                        messages: [{ role: 'user', content: prompt }]
+                    })
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`Anthropic API error! status: ${response.status}, message: ${errorData.error?.message}`);
+                }
+                const data = await response.json();
+                responseText = data.content[0].text;
+            } else {
+                const geminiUrl = `${GEMINI_BASE_URL}/${model}:generateContent`;
+                const response = await fetch(geminiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-goog-api-key': apiKey
+                    },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }]
+                    })
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`Gemini API error! status: ${response.status}, message: ${errorData.error.message}`);
+                }
+                const data = await response.json();
+                responseText = data.candidates[0].content.parts[0].text;
             }
 
-            const data = await response.json();
-            const geminiResponseText = data.candidates[0].content.parts[0].text;
-            currentGeminiRawText = geminiResponseText;
-            const htmlContent = converter.makeHtml(geminiResponseText);
-            geminiOutputPre.innerHTML = htmlContent; // Convert Markdown to HTML
-            
+            currentGeminiRawText = responseText;
+            const htmlContent = converter.makeHtml(responseText);
+            geminiOutputPre.innerHTML = htmlContent;
+
             if (aiAlertDiv) aiAlertDiv.style.display = 'none';
 
             let dateString = '';
@@ -252,16 +275,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 generationDateEl.style.display = 'block';
             }
 
-            // Salvar no storage para manter estado
             if (currentContextIdForStorage) {
                 const stateKey = `gemini_state_${currentContextIdForStorage}`;
                 const stateObj = {};
-                stateObj[stateKey] = {
-                    title: title,
-                    htmlContent: htmlContent,
-                    rawText: geminiResponseText,
-                    dateString: dateString
-                };
+                stateObj[stateKey] = { title, htmlContent, rawText: responseText, dateString };
                 chrome.storage.local.set(stateObj);
             }
             if (currentContextIdForStorage.startsWith('clickup_')) {
@@ -275,19 +292,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 generatePdfBtn.style.display = 'none';
             }
 
-            copyResponseBtn.onclick = () => {
-                navigator.clipboard.writeText(stripMarkdown(geminiResponseText));
-            };
-            copyMdBtn.onclick = () => {
-                navigator.clipboard.writeText(geminiResponseText);
-            };
+            copyResponseBtn.onclick = () => { navigator.clipboard.writeText(stripMarkdown(responseText)); };
+            copyMdBtn.onclick = () => { navigator.clipboard.writeText(responseText); };
 
         } catch (error) {
-            console.error('Erro ao chamar a API Gemini:', error);
+            console.error('Erro ao chamar a API de IA:', error);
             geminiOutputPre.textContent = `Erro ao gerar a resposta: ${error.message}`;
             if (aiAlertDiv) aiAlertDiv.style.display = 'none';
-            if (aiResponsibilityAlert) aiResponsibilityAlert.style.display = 'none';
         }
+    }
+
+    function getAISettings(callback) {
+        chrome.storage.sync.get(
+            { ai_provider: 'gemini', ai_model: 'gemini-2.5-flash', gemini_api_key: '', anthropic_api_key: '' },
+            function (result) {
+                const provider = result.ai_provider;
+                const model    = result.ai_model;
+                const apiKey   = provider === 'anthropic' ? result.anthropic_api_key : result.gemini_api_key;
+                const providerLabel = provider === 'anthropic' ? 'Anthropic' : 'Gemini';
+                callback({ provider, model, apiKey, providerLabel });
+            }
+        );
     }
 
     // --- Lógica Principal ---
@@ -415,9 +440,12 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        chrome.storage.sync.get(['gemini_api_key'], async (result) => {
-            if (result.gemini_api_key) {
-                const prompt = `Aja como um Product Owner (PO) e Analista de Requisitos Sênior que faz parte do time de desenvolvimento de software da Strategi.
+        getAISettings(async ({ provider, model, apiKey, providerLabel }) => {
+            if (!apiKey) {
+                alert(`Chave de API da ${providerLabel} não configurada. Por favor, configure-a nas opções da extensão.`);
+                return;
+            }
+            const prompt = `Aja como um Product Owner (PO) e Analista de Requisitos Sênior que faz parte do time de desenvolvimento de software da Strategi.
 Analise a seguinte descrição de tarefa do ClickUp.
 Regras:
 1. Se a descrição atual já estiver excelente e cobrir todos os pontos necessários (História de Usuário, Critérios de Aceite e Cenários de Teste), não gere nenhuma reescrita. Responda APENAS com "A escrita já é suficientemente boa." e nada mais.
@@ -432,10 +460,7 @@ Regras:
 
 Descrição da tarefa:
 ${currentTaskDetails.description}`;
-                await callGeminiAPI(prompt, result.gemini_api_key, 'Avaliação da Descrição');
-            } else {
-                alert('Chave de API do Gemini não configurada. Por favor, configure-a nas opções da extensão.');
-            }
+            await callAIAPI(prompt, { provider, model, apiKey }, 'Avaliação da Descrição');
         });
     });
 
@@ -445,9 +470,12 @@ ${currentTaskDetails.description}`;
             return;
         }
 
-        chrome.storage.sync.get(['gemini_api_key'], async (result) => {
-            if (result.gemini_api_key) {
-                const prompt = `Aja como um Product Manager Sênior focado em comunicação com o cliente na Strategi.
+        getAISettings(async ({ provider, model, apiKey, providerLabel }) => {
+            if (!apiKey) {
+                alert(`Chave de API da ${providerLabel} não configurada. Por favor, configure-a nas opções da extensão.`);
+                return;
+            }
+            const prompt = `Aja como um Product Manager Sênior focado em comunicação com o cliente na Strategi.
 Com base na seguinte tarefa do ClickUp, crie uma Nota de Versão (Changelog) clara, concisa e focada no valor entregue ao usuário.
 Regras:
 1. Inicie a resposta obrigatoriamente com o título "## Nota de Versão (Changelog)".
@@ -460,10 +488,7 @@ Nome da Tarefa: ${currentTaskDetails.name}
 Status: ${currentTaskDetails.status ? currentTaskDetails.status.status : 'N/A'}
 Descrição da tarefa:
 ${currentTaskDetails.description || 'N/A'}`;
-                await callGeminiAPI(prompt, result.gemini_api_key, 'Nota de Versão (Changelog)');
-            } else {
-                alert('Chave de API do Gemini não configurada. Por favor, configure-a nas opções da extensão.');
-            }
+            await callAIAPI(prompt, { provider, model, apiKey }, 'Nota de Versão (Changelog)');
         });
     });
 
@@ -473,13 +498,18 @@ ${currentTaskDetails.description || 'N/A'}`;
             return;
         }
 
-        chrome.storage.sync.get(['gemini_api_key', 'clickup_api_key'], async (result) => {
-            if (result.gemini_api_key) {
-                let username = 'Usuário';
-                if (result.clickup_api_key) {
+        getAISettings(async ({ provider, model, apiKey, providerLabel }) => {
+            if (!apiKey) {
+                alert(`Chave de API da ${providerLabel} não configurada. Por favor, configure-a nas opções da extensão.`);
+                return;
+            }
+
+            let username = 'Usuário';
+            chrome.storage.sync.get({ clickup_api_key: '' }, async (storageResult) => {
+                if (storageResult.clickup_api_key) {
                     try {
                         const userResp = await fetch('https://api.clickup.com/api/v2/user', {
-                            headers: { 'Authorization': result.clickup_api_key }
+                            headers: { 'Authorization': storageResult.clickup_api_key }
                         });
                         if (userResp.ok) {
                             const userData = await userResp.json();
@@ -512,32 +542,42 @@ Nome da Tarefa: ${currentTaskDetails.name}
 Status: ${currentTaskDetails.status ? currentTaskDetails.status.status : 'N/A'}
 Descrição da tarefa:
 ${currentTaskDetails.description || 'N/A'}`;
-                await callGeminiAPI(prompt, result.gemini_api_key, 'Manual / Guia de Uso');
-            } else {
-                alert('Chave de API do Gemini não configurada. Por favor, configure-a nas opções da extensão.');
-            }
+                await callAIAPI(prompt, { provider, model, apiKey }, 'Manual / Guia de Uso');
+            });
         });
     });
 
     generatePdfBtn.addEventListener('click', () => {
         if (!currentGeminiRawText) return;
 
+        // A4 content width: 210mm - 15mm*2 margins = 180mm ≈ 680px at 96dpi
+        const PDF_WIDTH = 680;
+
         const container = document.createElement('div');
-        container.style.fontFamily = 'Arial, sans-serif';
-        container.style.color = '#333';
-        container.style.width = '800px';
-        container.style.boxSizing = 'border-box';
-        container.style.padding = '20px';
-        container.style.background = '#ffffff';
-        container.style.wordWrap = 'break-word';
-        
+        container.style.cssText = [
+            `width:${PDF_WIDTH}px`,
+            'box-sizing:border-box',
+            'padding:24px 28px',
+            'background:#ffffff',
+            'color:#333',
+            'font-family:Arial,sans-serif',
+            'word-wrap:break-word',
+            'overflow-wrap:break-word',
+        ].join(';');
+
         container.innerHTML = `
             <style>
                 * { box-sizing: border-box; }
-                h1 { font-size: 24px; margin-top: 0; margin-bottom: 15px; }
-                p { margin-top: 5px; margin-bottom: 10px; line-height: 1.5; }
-                ul, ol { margin-top: 5px; margin-bottom: 15px; padding-left: 20px; }
-                li { margin-bottom: 5px; line-height: 1.5; }
+                body { margin: 0; }
+                h1 { font-size: 22px; margin-top: 0; margin-bottom: 14px; page-break-inside: avoid; }
+                h2, h3, h4, h5, h6 { page-break-inside: avoid; page-break-after: avoid; margin-bottom: 8px; }
+                p { margin-top: 4px; margin-bottom: 10px; line-height: 1.6; page-break-inside: avoid; }
+                ul, ol { margin-top: 4px; margin-bottom: 14px; padding-left: 22px; page-break-inside: avoid; }
+                li { margin-bottom: 5px; line-height: 1.6; page-break-inside: avoid; }
+                table { page-break-inside: avoid; width: 100%; }
+                pre, code { page-break-inside: avoid; white-space: pre-wrap; word-break: break-word; }
+                strong, b { font-weight: bold; }
+                em, i { font-style: italic; }
             </style>
             <div>${converter.makeHtml(currentGeminiRawText)}</div>
         `;
@@ -546,18 +586,21 @@ ${currentTaskDetails.description || 'N/A'}`;
             margin: [15, 15, 15, 15],
             filename: 'Manual.pdf',
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { 
-                scale: 2, 
-                scrollY: 0, 
-                windowWidth: 800,
+            html2canvas: {
+                scale: 2,
+                scrollY: 0,
+                windowWidth: PDF_WIDTH,
                 onclone: (clonedDoc) => {
-                    clonedDoc.body.style.width = '800px';
-                    clonedDoc.body.style.minWidth = '800px';
-                    clonedDoc.documentElement.style.overflow = 'hidden';
-                    clonedDoc.body.style.overflow = 'hidden';
+                    // Expand html+body to container width so overflow:visible
+                    // allows html2canvas to capture the full element without clipping.
+                    // popup.css sets body{width:350px} — we must override it here.
+                    const expand = `width:${PDF_WIDTH}px;min-width:${PDF_WIDTH}px;max-width:none;overflow:visible;margin:0;padding:0;`;
+                    clonedDoc.documentElement.setAttribute('style', expand);
+                    clonedDoc.body.setAttribute('style', expand);
                 }
             },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pageBreak: { mode: ['avoid-all', 'css', 'legacy'] }
         };
 
         html2pdf().set(opt).from(container).save();
@@ -591,8 +634,7 @@ ${currentTaskDetails.description || 'N/A'}`;
                 const options = { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' };
                 const dateString = new Intl.DateTimeFormat('pt-BR', options).format(now).replace(',', '');
 
-                const strippedText = stripMarkdown(currentGeminiRawText);
-                const textToAdd = `\n\n---\n[Gerado por IA - ${dateString}]\n\n${strippedText}`;
+                const textToAdd = `\n\n---\n[Gerado por IA - ${dateString}]\n\n${stripMarkdown(currentGeminiRawText)}`;
                 const newDescription = originalDesc + textToAdd;
 
                 let url = `https://api.clickup.com/api/v2/task/${taskInfo.taskId}`;
